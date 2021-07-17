@@ -4,13 +4,12 @@
             [clojure.string :as str]))
 
 (defn get-blob
-  [word i]
+  [word]
   (let [url "https://jisho.org/api/v1/search/words"]
     (-> (client/get url {:query-params {"keyword" word}, :accept :json})
         (get :body)
         json/parse-string
-        (get-in ["data"])
-        (nth i))))
+        (get-in ["data"]))))
 
 (defn comma-separated [coll]
   (str/join ", " coll))
@@ -20,11 +19,14 @@
 
 (defmethod jisho-query
   "-e" [blob [_ index]]
-  (-> blob
-      (get "senses")
-      (nth index)
-      (get "english_definitions")
-      (comma-separated)))
+  (let [senses (get blob "senses")
+        n-senses (count senses)]
+    (if (< index n-senses)
+      (-> senses
+        (nth index)
+        (get "english_definitions")
+        (comma-separated))
+      (str "senses index must be less than " n-senses))))
 
 
 (defmethod jisho-query
@@ -43,11 +45,14 @@
 
 (defmethod jisho-query
   "-p" [blob [_ index]]
-  (-> blob
-      (get "senses")
-      (nth index)
-      (get "parts_of_speech")
-      (comma-separated)))
+  (let [senses (get blob "senses")
+        n-senses (count senses)]
+    (if (index < n-senses)
+      (-> senses
+        (nth index)
+        (get "parts_of_speech")
+        (comma-separated))
+      (str "senses index must be less than " n-senses))))
 
 (defmethod jisho-query
   "-l" [blob [_ _]]
@@ -61,12 +66,19 @@
 (defn -main [& args]
   (let [n-args (count args)]
     (case n-args
-      2 (-> (get-blob (first args) 0)
+      2 (-> (get-blob (first args))
+            first
             (jisho-query [(fnext args) 0])
             print)
-      4 (-> (get-blob (first args) (Integer/parseInt (fnext args)))
-            (jisho-query [(nth args 2) (Integer/parseInt (nth args 3))])
-            print)
+      4 (let [blob (get-blob (first args))
+              n-slugs (count blob)
+              slug-index (Integer/parseInt (nth args 1))
+              field (nth args 2)
+              senses-index (Integer/parseInt (nth args 3))]
+          (if (< slug-index n-slugs)
+            (-> blob
+                (nth slug-index)
+                (jisho-query [field senses-index])
+                print)
+            (print (str "Error: slug-index must be less than " n-slugs))))
       (print "# arguments must be 2 or 4"))))
-
-;(-main "post" ":j")
