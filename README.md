@@ -16,6 +16,6 @@ A clojure [babashka](https://github.com/babashka/babashka#readme) script that qu
 
 `$ bb -m jisho.main 問い -p` will return the parts of speech for 問い (i.e, query)
 
-`$ bb -m jisho.main 問い 1 -e 0` will return the first english definition from the 2nd slug in the map for 問い (i.e, query). 
+`$ bb -m jisho.main 問い 1 -e 0` The 2nd and last arguments are the slug index and the senses index, respectively.  This example will return the first english definition from the 2nd slug in the map for 問い (i.e, query). 
 
 These indices start from 0 and are valid for the other actions too (i.e., -j, etc.)
