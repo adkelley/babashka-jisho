@@ -47,7 +47,7 @@
   "-p" [blob [_ index]]
   (let [senses (get blob "senses")
         n-senses (count senses)]
-    (if (index < n-senses)
+    (if (< index n-senses)
       (-> senses
         (nth index)
         (get "parts_of_speech")
