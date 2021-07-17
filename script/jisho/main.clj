@@ -14,51 +14,40 @@
 (defn comma-separated [coll]
   (str/join ", " coll))
 
+(defn get-query [blob index section query]
+  (let [items (get blob section)
+        n-items (count items)]
+    (if (< index n-items)
+      (let [item (nth items index)]
+        (if (not= query "")
+          (get item query)
+          item))
+      (str "section index must be less than " n-items))))
+
 (defmulti jisho-query
   (fn [_blob action] (first action)))
 
 (defmethod jisho-query
   "-e" [blob [_ index]]
-  (let [senses (get blob "senses")
-        n-senses (count senses)]
-    (if (< index n-senses)
-      (-> senses
-        (nth index)
-        (get "english_definitions")
-        (comma-separated))
-      (str "senses index must be less than " n-senses))))
-
+  (-> (get-query blob index "senses" "english_definitions")
+      comma-separated))
 
 (defmethod jisho-query
   "-j" [blob [_ _]]
-  (-> blob
-      (get "japanese")
-      first
-      (get "word")))
+  (get-query blob 0 "japanese" "word"))
 
 (defmethod jisho-query
   "-r" [blob [_ _]]
-  (-> blob
-      (get "japanese")
-      first
-      (get "reading")))
+  (get-query blob 0 "japanese" "reading"))
 
 (defmethod jisho-query
   "-p" [blob [_ index]]
-  (let [senses (get blob "senses")
-        n-senses (count senses)]
-    (if (< index n-senses)
-      (-> senses
-        (nth index)
-        (get "parts_of_speech")
-        (comma-separated))
-      (str "senses index must be less than " n-senses))))
+  (-> (get-query blob index "senses" "parts_of_speech")
+       comma-separated))
 
 (defmethod jisho-query
   "-l" [blob [_ _]]
-  (-> blob
-      (get "jlpt")
-      first))
+  (get-query blob 0 "jlpt" ""))
 
 (defmethod jisho-query
   :default [_ [_]] "no such query")
