@@ -1,0 +1,9 @@
+{
+ :paths
+ ["src/jisho/main.clj"]
+ 
+ :deps
+ {cheshire/cheshire  {:mvn/version "5.10.0"}
+  clj-http-lite/clj-http-lite  {:git/url "https://github.com/babashka/clj-http-lite" :sha "f44ebe45446f0f44f2b73761d102af3da6d0a13e"}
+ }
+} 
