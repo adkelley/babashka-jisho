@@ -3,7 +3,7 @@
             [cheshire.core :as json]
             [clojure.string :as str]))
 
-(defn get-blob
+(defn get-data
   [word]
   (let [url "https://jisho.org/api/v1/search/words"]
     (-> (client/get url {:query-params {"keyword" word}, :accept :json})
@@ -16,53 +16,59 @@
     (str/join ", " coll)
     "Error: senses out of range"))
 
-(defn get-query [blob index section query]
-  (let [item (nth (get blob section) index nil)]
+(defn get-query [blob i section query]
+  (let [item (nth (get blob section) i nil)]
      (get item query item)))
 
 (defmulti jisho-query
-  (fn [_slug action] (first action)))
+  (fn [_blob [query _]] query))
 
 (defmethod jisho-query
-  "-e" [slug [_ index]]
-  (comma-separate-senses (get-query slug index "senses" "english_definitions")))
+  "-e" [blob [_ i]]
+  (comma-separate-senses
+   (get-query blob i "senses" "english_definitions")))
 
 (defmethod jisho-query
-  "-d" [slug [_ _]]
-  (let [senses (get slug "senses")]
-    (reduce (fn [xs sense]
-              (str xs (comma-separate-senses (get sense "english_definitions")) "\n"))
+  "-d" [blob [_ _]]
+  (let [senses (get blob "senses")]
+    (reduce (fn [s sense]
+              (str s (comma-separate-senses
+                       (get sense "english_definitions")) "\n"))
             ""
             senses)))
 
 (defmethod jisho-query
-  "-j" [slug [_ _]]
-  (get-query slug 0 "japanese" "word"))
+  "-j" [blob [_ i]]
+  (get-query blob i "japanese" "word"))
 
 (defmethod jisho-query
-  "-r" [slug [_ _]]
-  (get-query slug 0 "japanese" "reading"))
+  "-r" [blob [_ i]]
+  (get-query blob i "japanese" "reading"))
 
 (defmethod jisho-query
-  "-p" [slug [_ index]]
-  (comma-separate-senses (get-query slug index "senses" "parts_of_speech")))
+  "-p" [blob [_ i]]
+  (comma-separate-senses
+   (get-query blob i "senses" "parts_of_speech")))
 
 (defmethod jisho-query
-  "-l" [slug [_ _]]
-  (get-query slug 0 "jlpt" ""))
+  "-l" [blob [_ _]]
+  (get-query blob 0 "jlpt" ""))
 
 (defmethod jisho-query
   :default [_ [_ _]] "Usage: bb -m jisho.main <word> < -e || -j || -r || -p || -l >")
 
-(defn -main [& args]
-  (let [n-args (count args)]
-    (case n-args
-      2 (-> (get-blob (first args))
-            first
-            (jisho-query [(fnext args) 0])
-            print)
-      4 (if-let [slug (nth (get-blob (first args)) (Integer/parseInt (nth args 1)) nil)]
-          (print
-            (jisho-query slug [(nth args 2) (Integer/parseInt (nth args 3))]))
-          (print "Error: slug-index out of range"))
-      (print "Error: # arguments must be 2 or 4"))))
+(defn -main
+  ([word query]
+   (-main word "0" query "0"))
+  ([word data-i query senses-i]
+   (let [blob (nth (get-data word) (Integer/parseInt data-i) nil)]
+     (if blob
+       (print (jisho-query blob [query (Integer/parseInt senses-i)]))
+       (print "Error: data index out of range")))))
+
+(comment
+  (-main "漢字" "-e")
+  (-main "漢字" "1" "-e" "0")
+  (-main "漢字" "-d")
+  (-main "circle" "0" "-e" "1")
+)
