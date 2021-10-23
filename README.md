@@ -18,6 +18,10 @@ A clojure [babashka](https://github.com/babashka/babashka#readme) script that qu
 
 `$ bb -m jisho.main 問い -d` List all the english definitions for each of the senses.
 
-`$ bb -m jisho.main 問い 1 -e 0` The integer arguments are the slug index and the senses index, respectively.  This example will return the first english definition from the 2nd slug in the map for 問い (i.e, query). 
+Optional integer arguments are the slug index and the senses index. Note, the senses index must be accompanied by the slug index
+
+`$ bb -m jisho.main 問い 1 -e` Return the first english definition from the first slug in the map for the query '問い'.
+
+`$ bb -m jisho.main circle 1 -e 2` Return the second english definition from the first slug in the map for the query 'circle'. 
 
 ## Wish List

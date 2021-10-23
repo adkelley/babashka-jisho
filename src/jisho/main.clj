@@ -59,16 +59,24 @@
 
 (defn -main
   ([word query]
-   (-main word "0" query "0"))
+   (-main word "1" query "1"))
+  ([word data-i query]
+   (-main word data-i query "1"))
   ([word data-i query senses-i]
-   (let [blob (nth (get-data word) (Integer/parseInt data-i) nil)]
-     (if blob
-       (print (jisho-query blob [query (Integer/parseInt senses-i)]))
-       (print "Error: data index out of range")))))
+   (if-let [blob (nth (get-data word) (dec (Integer/parseInt data-i)) nil)]
+     (print (jisho-query blob [query (dec (Integer/parseInt senses-i))]))
+     (print "Error: data index out of range"))))
 
 (comment
-  (-main "漢字" "-e")
-  (-main "漢字" "1" "-e" "0")
+(-main "漢字" "-e")
+;; error
+  (-main "漢字" "-1" "-e" "1")
+;; three arguments
+  (-main "漢字" "1" "-e")
+;; four arguments
+  (-main "漢字" "1" "-e" "1")
   (-main "漢字" "-d")
-  (-main "circle" "0" "-e" "1")
+  (-main "circle" "1" "-e" "2")
+  (-main "circle" "1" "-e")
+  (println)
 )
