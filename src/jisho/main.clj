@@ -1,7 +1,8 @@
 (ns jisho.main
   (:require [clj-http.lite.client :as client]
             [cheshire.core :as json]
-            [clojure.string :as str]))
+            [clojure.string :as str])
+  (:gen-class))
 
 (defn get-data
   [word]

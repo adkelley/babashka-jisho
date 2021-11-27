@@ -1,9 +1,12 @@
 {
  :paths
- ["src/jisho/main.clj"]
+ ["src"]
  
  :deps
  {cheshire/cheshire  {:mvn/version "5.10.0"}
   clj-http-lite/clj-http-lite  {:git/url "https://github.com/babashka/clj-http-lite" :sha "f44ebe45446f0f44f2b73761d102af3da6d0a13e"}
  }
+ :aliases {:remove-clojure {:classpath-overrides {org.clojure/clojure nil
+                                                  org.clojure/spec.alpha nil
+                                                  org.clojure/core.specs.alpha nil}}}
 } 
