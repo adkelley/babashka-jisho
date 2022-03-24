@@ -1,7 +1,8 @@
 (ns jisho.main
   (:require [clj-http.lite.client :as client]
-            [cheshire.core :as json]
-            [clojure.string :as str])
+            [cheshire.core :as json] 
+            [clojure.string :as str]
+            [clojure.tools.cli :refer [parse-opts]])
   (:gen-class))
 
 (defn get-data
@@ -21,63 +22,85 @@
   (let [item (nth (get blob section) i nil)]
      (get item query item)))
 
-(defmulti jisho-query
-  (fn [_blob [query _]] query))
+;; (defmethod jisho-query
+;;   "-d" [blob [_ _]]
+;;   (let [senses (get blob "senses")]
+;;     (reduce (fn [s sense]
+;;               (str s (comma-separate-senses
+;;                        (get sense "english_definitions")) "\n"))
+;;             ""
+;;             senses)))
 
-(defmethod jisho-query
-  "-e" [blob [_ i]]
-  (comma-separate-senses
-   (get-query blob i "senses" "english_definitions")))
+(defn missing-required?
+  "Ensure command line arguments contains word to process"
+  [arguments]
+  (= 0 (count arguments)))
 
-(defmethod jisho-query
-  "-d" [blob [_ _]]
-  (let [senses (get blob "senses")]
-    (reduce (fn [s sense]
-              (str s (comma-separate-senses
-                       (get sense "english_definitions")) "\n"))
-            ""
-            senses)))
+(defn parts-of-speech [arguments]
+  (let [word (first arguments)
+        blob (nth (get-data word) 0 nil)]
+    (comma-separate-senses
+     (get-query blob 0 "senses" "parts_of_speech"))))
 
-(defmethod jisho-query
-  "-j" [blob [_ i]]
-  (get-query blob i "japanese" "word"))
+(defn jlpt-level [arguments]
+  (let [word (first arguments)
+        blob (nth (get-data word) 0 nil)]
+     (get-query blob 0 "jlpt" "")))
 
-(defmethod jisho-query
-  "-r" [blob [_ i]]
-  (get-query blob i "japanese" "reading"))
+(defn japanese-reading
+  "Return the japanese reading for kanji"
+  [arguments]
+  (let [word (first arguments)
+        blob (nth (get-data word) 0 nil)]
+    (get-query blob 0 "japanese" "reading")))
 
-(defmethod jisho-query
-  "-p" [blob [_ i]]
-  (comma-separate-senses
-   (get-query blob i "senses" "parts_of_speech")))
+(defn japanese->english
+  "Return the english definition"
+  [arguments]
+  (let [word (first arguments)
+        blob (nth (get-data word) 0 nil)]
+    (comma-separate-senses
+     (get-query blob 0 "senses" "english_definitions"))))
 
-(defmethod jisho-query
-  "-l" [blob [_ _]]
-  (get-query blob 0 "jlpt" ""))
+(defn english->japanese
+  "Return the japanese word"
+  [arguments]
+  (let [word (first arguments)
+        blob (nth (get-data word) 0 nil)]
+    (str (get-query blob 0 "japanese" "word")
+         "("
+         (get-query blob 0 "japanese" "reading")
+         ")")))
 
-(defmethod jisho-query
-  :default [_ [_ _]] "Usage: bb -m jisho.main <word> < -e || -j || -r || -p || -l >")
+(def cli-options
+  [["-p" "--part-of-speech" "Part of Speech" :default true]
+   ["-l" "--jlpt-level" "JLPT Level" :default false]
+   ["-r" "--japanese-reading" "Japanese Reading" :default false]
+   ["-j" "--english->japanese" "English -> Japanese" :default false]
+   ["-e" "--japanese->english" "Japanese -> English" :default false]
+   ["-h" "--help" "word <options>" :default false]])
 
 (defn -main
-  ([word query]
-   (-main word "1" query "1"))
-  ([word data-i query]
-   (-main word data-i query "1"))
-  ([word data-i query senses-i]
-   (if-let [blob (nth (get-data word) (dec (Integer/parseInt data-i)) nil)]
-     (print (jisho-query blob [query (dec (Integer/parseInt senses-i))]))
-     (print "Error: data index out of range"))))
+  "Extract the command line arguments and process the request"
+  [& args]
+  (let [{:keys [options arguments summary _errors]} (parse-opts args cli-options)]
+    (cond
+      (or (missing-required? arguments)
+          (:help options))              (println summary)
+      (:jlpt-level options)             (print (jlpt-level arguments))
+      (:japanese-reading options)       (print (japanese-reading arguments))
+      (:english->japanese options)      (print (english->japanese arguments))
+      (:japanese->english options)      (print (japanese->english arguments))
+      ;; default
+      (:part-of-speech options)         (print (parts-of-speech arguments))
+      )))
 
 (comment
-(-main "漢字" "-e")
-;; error
-  (-main "漢字" "-1" "-e" "1")
-;; three arguments
-  (-main "漢字" "1" "-e")
-;; four arguments
-  (-main "漢字" "1" "-e" "1")
-  (-main "漢字" "-d")
-  (-main "circle" "1" "-e" "2")
-  (-main "circle" "1" "-e")
-  (println)
+  (-main)      
+  (-main "-h") 
+  (-main "漢字" "-p") 
+  (-main "漢字" "-l")
+  (-main "漢字" "-r")
+  (-main "kanji" "-j")
+  (-main "漢字" "-e")
 )

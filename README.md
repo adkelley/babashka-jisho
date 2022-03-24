@@ -14,6 +14,8 @@ A clojure [babashka](https://github.com/babashka/babashka#readme) script that qu
 
 `$ bb jisho.jar 問い -e` will return the english definition for 問い (i.e, query)
 
+`$ bb jisho.jar 問い -r` will return the japanese reading for 問い (i.e, まるい)
+
 `$ bb jisho.jar 問い -l` will return the jlpt level for 問い (i.e, query)
 
 `$ bb jisho.jar 問い -p` will return the parts of speech for 問い (i.e, query)
