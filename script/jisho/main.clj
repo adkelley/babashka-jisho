@@ -66,13 +66,14 @@
   "Return the japanese word"
   [arguments]
   (let [word (first arguments)
-        blob (nth (get-data word) 0 nil)]
-    (str (get-query blob 0 "japanese" "word")
-         "("
-         (get-query blob 0 "japanese" "reading")
-         ")")))
+        blob (nth (get-data word) 0 nil)
+        japanese (get-query blob 0 "japanese" "word")
+        show-kana? true]
+    (if show-kana?
+      (str japanese "  [" (get-query blob 0 "japanese" "reading") "]")
+      japanese)))
 
-(def cli-options
+(defonce cli-options
   [["-p" "--part-of-speech" "Part of Speech" :default true]
    ["-l" "--jlpt-level" "JLPT Level" :default false]
    ["-r" "--japanese-reading" "Japanese Reading" :default false]
@@ -102,5 +103,6 @@
   (-main "漢字" "-l")
   (-main "漢字" "-r")
   (-main "kanji" "-j")
+  (-main "kanji" "-j" "-k")
   (-main "漢字" "-e")
 )
