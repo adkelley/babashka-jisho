@@ -4,6 +4,8 @@
  
  :deps
  {
+  cheshire/cheshire {:mvn/version "5.10.0"}
+  org.clojure/tools.cli {:mvn/version "1.0.206"}
   clj-http-lite/clj-http-lite  {:git/url "https://github.com/babashka/clj-http-lite" :sha "f44ebe45446f0f44f2b73761d102af3da6d0a13e"}
  }
  :aliases

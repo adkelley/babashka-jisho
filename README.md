@@ -5,19 +5,23 @@ A clojure [babashka](https://github.com/babashka/babashka#readme) script that qu
 ## Installation
 1. Install [babashka](https://github.com/babashka/babashka)
 2. Clone this repository
+3. Create an uberjar prior to running babashka
+
+```$ bb -cp $(clojure -A:remove-clojure -Spath) uberjar jisho.jar -m jisho.main```
+
 
 ## Usage (Babashka) 
-`$ bb -m jisho.main query -j` will return the japanese word for query (i.e., 問い)
+`$ bb jisho.jar query -j` will return the japanese word for query (i.e., 問い)
 
-`$ bb -m jisho.main 問い -e` will return the english definition for 問い (i.e, query)
+`$ bb jisho.jar 問い -e` will return the english definition for 問い (i.e, query)
 
-`$ bb -m jisho.main 問い -r` will return the japanese reading for 問い (i.e, まるい)
+`$ bb jisho.jar 問い -r` will return the japanese reading for 問い (i.e, まるい)
 
-`$ bb -m jisho.main 問い -l` will return the jlpt level for 問い (i.e, query)
+`$ bb jisho.jar 問い -l` will return the jlpt level for 問い (i.e, query)
 
-`$ bb -m jisho.main 問い -p` will return the parts of speech for 問い (i.e, query)
+`$ bb jisho.jar 問い -p` will return the parts of speech for 問い (i.e, query)
 
-`$ bb -m jisho.main 問い -d` List all the english definitions for each of the senses.
+`$ bb jisho.jar 問い -d` List all the english definitions for each of the senses.
 
 Optional integer arguments are the slug index and the senses index. Note, the senses index must be accompanied by the slug index
 
