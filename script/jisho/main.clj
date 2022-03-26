@@ -22,15 +22,6 @@
   (let [item (nth (get blob section) i nil)]
      (get item query item)))
 
-;; (defmethod jisho-query
-;;   "-d" [blob [_ _]]
-;;   (let [senses (get blob "senses")]
-;;     (reduce (fn [s sense]
-;;               (str s (comma-separate-senses
-;;                        (get sense "english_definitions")) "\n"))
-;;             ""
-;;             senses)))
-
 (defn missing-required?
   "Ensure command line arguments contains word to process"
   [arguments]
@@ -44,8 +35,12 @@
 
 (defn jlpt-level [arguments]
   (let [word (first arguments)
-        blob (nth (get-data word) 0 nil)]
-     (get-query blob 0 "jlpt" "")))
+        blob (nth (get-data word) 0 nil)
+        jlpt (get-query blob 0 "jlpt" "")]
+    (if (nil? jlpt)
+      ""
+      ;; extract level only
+      (last jlpt))))
 
 (defn japanese-reading
   "Return the japanese reading for kanji"
@@ -101,8 +96,10 @@
   (-main "-h") 
   (-main "漢字" "-p") 
   (-main "漢字" "-l")
+  (-main "漢" "-l")
+  (-main "漢" "-r")
   (-main "漢字" "-r")
   (-main "kanji" "-j")
   (-main "kanji" "-j" "-k")
   (-main "漢字" "-e")
-)
+,)
