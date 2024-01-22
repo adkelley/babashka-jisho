@@ -17,7 +17,7 @@ Use the bash script provided to avoid typing mistakes
 
 ## Usage (cli) 
 
-`$ bb jisho.jar <word> <arguments>`
+`$ bb jisho.jar <word> <argument>`
 
 If no arguments, beside the word, is specified then return the parts of speech.
 
@@ -49,12 +49,12 @@ then copy the query arguments into your clipboard and run the shell script snipp
 ## Usage (Babashka)
 This project was structured to work with the shell script feature in [TextExpander](https://textexpander.com/), which apparently doesn't like ```bb.edn``` files.  Thus, if a `bb.edn` is present in the jisho directory, the TextExpander shellscript given above will not work. The workaround is to create a JAR file (see 'Installation') and call jisho from the cli or from TextExpander shell script as described in the previous sections.
 
-This is not the standard approach to using Babashka.  If you're __not__ interested in combining jisho with TextExpander then do the following:
+This is not the standard approach to using Babashka.  If you're __not__ interested in combining jisho with TextExpander then do the following during installation or later:
 
 ```bash
 $ mv deps.edn bb.edn
 $ rm jisho.jar
-$ bb -m jisho.main <word> <arguments>
+$ bb -m jisho.main <word> <argument>
 ```
 
 ## TODO:

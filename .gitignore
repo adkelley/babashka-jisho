@@ -2,3 +2,5 @@
 .nrepl-port
 script/jisho/.nrepl-port
 jisho.jar
+/.clj-kondo/
+/.lsp/
